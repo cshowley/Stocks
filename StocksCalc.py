@@ -1,3 +1,37 @@
+from pandas import DataFrame
+import pandas.io.data as web
+
+ticker = []
+with open('500.csv','rU') as data:
+    for line in data:
+        ticker.append(line.strip())
+
+stockData = {}
+for stock in ticker:
+    try:
+        print stock
+        stockData[stock] = web.DataReader(stock,'google','1/1/2015','2/1/2015')
+    except (IOError):
+        pass
+
+closingPrice = DataFrame({tic: data['Close'] for tic, data in stockData.iteritems()})
+twoPercentStocks = []
+for stock in closingPrice:
+    finalPrice = closingPrice[stock][-1]
+    meanPrice = closingPrice[stock].mean(0,19)
+    if closingPrice[stock][-1] / closingPrice[stock].mean(0,19) < 0.98:
+        twoPercentStocks.append([stock,finalPrice,meanPrice])
+    else:
+        pass
+
+with open('twoPercentStocks.csv','w') as data:
+    data.write('%s' % 'Symbol' +','+ '%s' % 'Final Price' +','+ '%s\n' % 'Mean Price')
+    for stock in twoPercentStocks:
+        data.write('%s' % stock[0] +','+ '%s' % stock[1] +','+ '%s\n' % stock[2])
+
+
+
+"""
 import csv
 import numpy
 import os
@@ -74,4 +108,4 @@ while z < 100:
     a = daybreak(z, money)
     print a
     z += 1
-
+"""
